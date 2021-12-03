@@ -1,0 +1,17 @@
+node_modules/
+*.json
+!package.json
+
+*.db
+
+*.md
+!README.md
+
+promisify.js
+*.man
+*.exe
+node
+npm
+npx
+*.cmd
+*.bat
