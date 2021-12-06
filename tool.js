@@ -25,8 +25,8 @@ exports.IsDate = function(str){
     if(parseInt(RegExp.$2)==2&&((parseInt(RegExp.$1)%4==0&&parseInt(RegExp.$1)%100!=0)||parseInt(RegExp.$1)%400==0)){
         if(parseInt(RegExp.$3)>29)
             return false;
-    }else if(parseInt(RegExp.$3)>month[parseInt(RegExp.$2)-1]||parseInt(RegExp.$3)<0)
+    }
+    if(parseInt(RegExp.$3)>month[parseInt(RegExp.$2)-1]||parseInt(RegExp.$3)<0)
         return false;
-
     return true;
 }

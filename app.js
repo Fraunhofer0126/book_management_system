@@ -48,7 +48,7 @@ const reader=require('./routes/reader');
 app.route('/init','post',init.Init);
 app.route('/addbook','post',book.addBook);
 app.route('/addnum','post',book.addNum);
-app.route('/reducenum','post',book.reduceNum);
+app.route('/reducenum','post',book.reduceBook);
 app.route('/changebook','post',book.changeBook);
 app.route('/qbook','post',book.qBook);
 app.route('/addreader','post',reader.addReader);
@@ -79,7 +79,7 @@ app.use(function(err,req,res,next)
 });
 
 //:create server
-let port=3000;
+let port=80;
 var server = require('http').createServer(app.OnRequest);
 server.on('error', onError);
 server.on('listening', onListening);
