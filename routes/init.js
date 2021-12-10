@@ -14,14 +14,14 @@ exports.Init=function*(req,res){
         yield db.execSQL("DROP TABLE IF EXISTS Readers");
 
     // 如果已有Record表，删除之
-    table = yield db.execSQL("SELECT name FROM sqlite_master WHERE type = 'table' and name = 'Infomations' ");
+    table = yield db.execSQL("SELECT name FROM sqlite_master WHERE type = 'table' and name = 'Informations' ");
     if(table.length > 0)
-        yield db.execSQL("DROP TABLE IF EXISTS Infomations");
+        yield db.execSQL("DROP TABLE IF EXISTS Informations");
 
     // 新建库
-    yield db.execSQL("create table Books (bID varchar(30) primary key,bName varchar(30) not null,bPub varchar(30) not null,bDate Date not null, bAuthor char(20) not null, bMem char(30) not null, bCnt int not null, storedNum int not null)");
+    yield db.execSQL("create table Books (bID varchar(30) primary key,bName varchar(30) not null,bPub varchar(30) not null,bDate Date not null, bAuthor char(20) not null, bMem char(30) not null, bCnt int not null, storedCnt int not null)");
     yield db.execSQL("create table Readers (rID varchar(30) primary key,rName varchar(10) not null,rSex char(1) not null,rDept varchar(10) not null, rGrade int not null)");
-    yield db.execSQL("create table Infomations (rID varchar(30) not null ,bID varchar(30) not null , rentDate Date not null, returnDate Date )");
+    yield db.execSQL("create table Informations (rID varchar(30) not null ,bID varchar(30) not null , rentDate Date not null, returnDate Date )");
 
     return responseStr(0, "成功");
 }

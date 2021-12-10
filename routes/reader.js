@@ -27,7 +27,7 @@ exports.delReader=function*(req,res){
     if(table.length==0)
         return responseStr(1, "该证号不存在");
 
-    let view1 = yield db.execSQL("SELECT * FROM Infomations WHERE rID=? and returnDate is null  ",[body.rID]);
+    let view1 = yield db.execSQL("SELECT * FROM Informations WHERE rID=? and returnDate is null  ",[body.rID]);
 
     if(view1.length>0)
         return responseStr(2, "该读者尚有书籍未归还</body></html>");
@@ -88,7 +88,7 @@ exports.qBooklist=function*(req,res){
         return responseStr(1, "该证号不存在");
 
     let result = "";
-    let view1 = yield db.execSQL("SELECT Books.bID as bID,bName,rentDate, date(rentDate,'+30 day') as duedate FROM Infomations,Books WHERE Infomations.rID=? and returnDate is null and Infomations.bID=Books.bID",[body.rID]);
+    let view1 = yield db.execSQL("SELECT Books.bID as bID,bName,rentDate, date(rentDate,'+30 day') as duedate FROM Informations,Books WHERE Informations.rID=? and returnDate is null and Informations.bID=Books.bID",[body.rID]);
     let is ='否';
 
     let date = new Date();
@@ -118,7 +118,7 @@ exports.rentBook=function*(req,res){
     if(view2.length==0)
         return responseStr(2, "该书号不存在");
     
-    let view3 = yield db.execSQL("SELECT bID, date(rentDate,'+30 day') as duedate FROM Infomations WHERE Infomations.rID=? and returnDate is null ",[body.rID]);
+    let view3 = yield db.execSQL("SELECT bID, date(rentDate,'+30 day') as duedate FROM Informations WHERE Informations.rID=? and returnDate is null ",[body.rID]);
     let date = new Date();
     let year = date.getFullYear();
     let month = date.getMonth()+1;
@@ -142,11 +142,11 @@ exports.rentBook=function*(req,res){
     
     let view5 = yield db.execSQL("SELECT * FROM Books WHERE bID=?",[body.bID]);
 
-    if(view5[0].storedNum ==0)
+    if(view5[0].storedCnt ==0)
         return responseStr(5, "该书已经全部借出");
 
-    yield db.execSQL("INSERT INTO Infomations (rID,bID,rentDate) values(?,?,?)",[body.rID,body.bID,now]);
-    yield db.execSQL("UPDATE Books SET storedNum = ? WHERE bID = ?",[view5.length-1,body.bID]);
+    yield db.execSQL("INSERT INTO Informations (rID,bID,rentDate) values(?,?,?)",[body.rID,body.bID,now]);
+    yield db.execSQL("UPDATE Books SET storedCnt = ? WHERE bID = ?",[view5.length-1,body.bID]);
     return responseStr(0, "成功");
     
 }
@@ -162,7 +162,7 @@ exports.returnBook=function*(req,res){
     if(view2.length==0)
         return responseStr(2, "该书号不存在");
 
-    let view3 = yield db.execSQL("SELECT bID FROM Infomations WHERE Infomations.rID=? and Infomations.bID=? and returnDate is null ",[body.rID, body.bID]);
+    let view3 = yield db.execSQL("SELECT bID FROM Informations WHERE Informations.rID=? and Informations.bID=? and returnDate is null ",[body.rID, body.bID]);
     if(view3.length==0)
         return responseStr(3, "该读者并未借阅该书</body></html>");
 
@@ -174,10 +174,10 @@ exports.returnBook=function*(req,res){
     if(month<10) month = '0'+month;
     if(day<10) day = '0'+day;
     let now = year+'-'+month+'-'+day
-    yield db.execSQL("UPDATE Infomations SET returnDate = ? WHERE bID = ? and rID = ?",[now,body.bID,body.rID]);
+    yield db.execSQL("UPDATE Informations SET returnDate = ? WHERE bID = ? and rID = ?",[now,body.bID,body.rID]);
 
     let view5 = yield db.execSQL("SELECT * FROM Books WHERE bID=?",[body.bID]);
-    yield db.execSQL("UPDATE Books SET storedNum = ? WHERE bID = ?",[view5[0].storedNum+1,body.bID]);
+    yield db.execSQL("UPDATE Books SET storedCnt = ? WHERE bID = ?",[view5[0].storedCnt+1,body.bID]);
     return responseStr(0, "成功");
 }
 
@@ -189,7 +189,7 @@ exports.qReaderlist=function*(req,res){
     if(month<10) month = '0'+month;
     if(day<10) day = '0'+day;
     let now = year+'-'+month+'-'+day
-    let table = yield db.execSQL("SELECT rID,rName,rSex,rDept,rGrade FROM Readers WHERE exists (SELECT * FROM Infomations WHERE date(rentDate,'+30 day')<? and Infomations.rID=Readers.rID and returnDate is null)",[now]);
+    let table = yield db.execSQL("SELECT rID,rName,rSex,rDept,rGrade FROM Readers WHERE exists (SELECT * FROM Informations WHERE date(rentDate,'+30 day')<? and Informations.rID=Readers.rID and returnDate is null)",[now]);
     let result = ""
     for(let row of table)
         result+='<tr><td>'+row.rID+'</td><td>'+row.rName+'</td><td>'+row.rSex+'</td><td>'+row.rDept+'</td><td>'+row.rGrade+'</td></tr>';

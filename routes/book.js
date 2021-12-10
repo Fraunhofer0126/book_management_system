@@ -26,7 +26,7 @@ exports.addBook=function*(req,res){
 
     if(table.length>0)
         return responseStr(1, "该书已经存在");
-    yield db.execSQL("INSERT INTO Books (bID,bName,bPub,bDate,bAuthor,bMem,bCnt,storedNum) values(?,?,?,?,?,?,?,?)",[body.bID,body.bName,body.bPub,body.bDate,body.bAuthor,body.bMem,body.bCnt,body.bCnt]);
+    yield db.execSQL("INSERT INTO Books (bID,bName,bPub,bDate,bAuthor,bMem,bCnt,storedCnt) values(?,?,?,?,?,?,?,?)",[body.bID,body.bName,body.bPub,body.bDate,body.bAuthor,body.bMem,body.bCnt,body.bCnt]);
     return responseStr(0, "成功");
 }
 exports.addNum=function*(req,res){
@@ -39,8 +39,8 @@ exports.addNum=function*(req,res){
         return responseStr(1, "该书不存在");
 
     let newbCnt = parseInt(body.bCnt)+table[0].bCnt;
-    let newstoredNum = parseInt(body.bCnt)+table[0].storedNum
-    yield db.execSQL("UPDATE Books SET bCnt = ? ,storedNum = ? WHERE bID = ?",[newbCnt,newstoredNum,body.bID]);
+    let newstoredNum = parseInt(body.bCnt)+table[0].storedCnt
+    yield db.execSQL("UPDATE Books SET bCnt = ? ,storedCnt = ? WHERE bID = ?",[newbCnt,newstoredNum,body.bID]);
     return responseStr(0, "成功");
 }
 
@@ -54,22 +54,19 @@ exports.reduceBook=function*(req,res){
     if(table.length==0)
         return responseStr(1, "该书不存在");
 
-    if(parseInt(body.bCnt)>table[0].bCnt)
+    if(parseInt(body.bCnt)>table[0].storedCnt)
         return responseStr(2, "减少的数量大于该书目前在库数量");
-    if(parseInt(body.bCnt)>table[0].storedNum)
-        return responseStr(3, "提交的参数有误：减少的数量大于该书目前馆藏数量")
-
 
     if(parseInt(body.bCnt)==table[0].bCnt){
-        if(table[0].storedNum!=table[0].bCnt)
-            return responseStr(3, "提交的参数有误：该图书有未归还部分");
+        if(table[0].storedCnt!=table[0].bCnt)
+            return responseStr(3, "提交的参数有误：该图书还有外借，应全部归还");
         yield db.execSQL("DELETE FROM Books WHERE bID = ?",[body.bID]);
         return responseStr(0, "成功");
     } 
 
     let newbCnt = table[0].bCnt-parseInt(body.bCnt);
-    let newstoredNum = table[0].storedNum-parseInt(body.bCnt)
-    yield db.execSQL("UPDATE Books SET bCnt = ?,storedNum = ? WHERE bID = ?",[newbCnt,newstoredNum,body.bID]);
+    let newstoredNum = table[0].storedCnt-parseInt(body.bCnt)
+    yield db.execSQL("UPDATE Books SET bCnt = ?,storedCnt = ? WHERE bID = ?",[newbCnt,newstoredNum,body.bID]);
     return responseStr(0, "成功");    
 }
 
@@ -120,7 +117,7 @@ exports.qBook=function*(req,res){
     for(let row of table)
         result+=
         '<tr><td>'+row.bID+'</td><td>'+row.bName+'</td><td>'+row.bCnt+'</td><td>'+
-        row.storedNum+'</td><td>'+row.bPub+'</td><td>'+row.bDate+'</td><td>'+row.bAuthor+
+        row.storedCnt+'</td><td>'+row.bPub+'</td><td>'+row.bDate+'</td><td>'+row.bAuthor+
         '</td><td>'+row.bMem+'</td></tr>';
 
     return responseStr(0, result, true);
